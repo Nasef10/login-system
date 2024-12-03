@@ -1,13 +1,15 @@
 // Array to store users
 const users = JSON.parse(localStorage.getItem("users")) || [];
 
-// Register ()
+// Register function
 function register() {
   const name = document.getElementById("regName").value.trim();
   const email = document.getElementById("regEmail").value.trim();
   const password = document.getElementById("regPassword").value.trim();
+  const confirmPassword = document.getElementById("regConfirmPassword").value.trim();
 
-  if (!name || !email || !password) {
+  // Basic validation
+  if (!name || !email || !password || !confirmPassword) {
     Swal.fire({
       icon: 'error',
       title: 'Error',
@@ -16,15 +18,17 @@ function register() {
     return;
   }
 
+  // Validate email format
   if (!/\S+@\S+\.\S+/.test(email)) {
     Swal.fire({
       icon: 'error',
       title: 'Invalid Email',
-      text: 'Enter a valid email address!',
+      text: 'Please enter a valid email address!',
     });
     return;
   }
 
+  // Check if email already exists
   if (users.some((user) => user.email === email)) {
     Swal.fire({
       icon: 'warning',
@@ -34,7 +38,28 @@ function register() {
     return;
   }
 
-  // Add user to array
+  // Password validation (e.g., minimum length, uppercase, number)
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
+  if (!passwordRegex.test(password)) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Weak Password',
+      text: 'Password must be at least 6 characters long and contain a mix of letters, numbers, and special characters.',
+    });
+    return;
+  }
+
+  // Password and confirm password match
+  if (password !== confirmPassword) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Password Mismatch',
+      text: 'Passwords do not match!',
+    });
+    return;
+  }
+
+  // Add user to array and save to localStorage
   users.push({ name, email, password });
   localStorage.setItem("users", JSON.stringify(users));
   Swal.fire({
@@ -48,10 +73,30 @@ function register() {
   });
 }
 
-// Login Function
+// Login function
 function login() {
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value.trim();
+
+  // Validate login fields
+  if (!email || !password) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Both fields are required!',
+    });
+    return;
+  }
+
+  // Validate email format
+  if (!/\S+@\S+\.\S+/.test(email)) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Invalid Email',
+      text: 'Please enter a valid email address!',
+    });
+    return;
+  }
 
   const user = users.find((u) => u.email === email && u.password === password);
 
@@ -77,7 +122,7 @@ function login() {
   });
 }
 
-// Logout Function
+// Logout function
 function logout() {
   Swal.fire({
     icon: 'question',
